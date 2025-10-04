@@ -1,0 +1,37 @@
+name: Java CI
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Display project files
+        run: ls -R
+
+      - name: Build and run tests
+        run: mvn -B -q verify
+
+      - name: Run CLI benchmark
+        run: |
+          mvn -q compile exec:java -Dexec.mainClass="cli.BenchmarkRunner" -Dexec.args="100 1000 5000"
+      - name: Upload benchmark CSV
+        uses: actions/upload-artifact@v4
+        with:
+          name: selection-sort-results
+          path: results_selection_sort.csv
